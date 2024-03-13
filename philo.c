@@ -3,12 +3,12 @@
 #include <pthread.h>
 #include <unistd.h>
 
-pthread_mutex_t bacchette[10];
+pthread_mutex_t bacchette[5];
 
 void *filosofo(void *arg) {
     int id = *(int *)arg;
-    int bacchetta_sx = id * 2;
-    int bacchetta_dx = (id * 2 + 1) % 10;
+    int bacchetta_sx = id ;
+    int bacchetta_dx = (id + 1) % 10;
     
     for (int i = 0; i < 5; i++) {
         printf("Filosofo %d: sta pensando\n", id);
@@ -19,7 +19,7 @@ void *filosofo(void *arg) {
         pthread_mutex_lock(&bacchette[bacchetta_dx]);
         printf("Filosofo %d: ha preso la sua bacchetta di destra\n", id);
         
-        printf("Filosofo %d: sta mangiando\n", id);
+        printf("\n\n\nFilosofo %d: sta mangiando\n\n\n", id);
         usleep(1000000); //faccio "mangiare" il filosofo n per un po' di tempo
         
         pthread_mutex_unlock(&bacchette[bacchetta_dx]);
@@ -27,6 +27,7 @@ void *filosofo(void *arg) {
         pthread_mutex_unlock(&bacchette[bacchetta_sx]);
         printf("Filosofo %d: ha posato la sua bacchetta sinistra\n", id);
     }
+            printf("Filosofo %d: ha rilasciato le sue due bacchette\n", id);
 
 return NULL;
 }
