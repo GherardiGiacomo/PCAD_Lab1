@@ -6,4 +6,6 @@ typedef struct my_barrier{
     pthread_cond_t varcond;
 } my_barrier;
 unsigned int pthread_my_barrier_init(my_barrier *mb, unsigned int v);
+
+ciao
 unsigned int pthread_my_barrier_wait(my_barrier *mb);
