@@ -5,6 +5,8 @@
 
 pthread_mutex_t bacchette[5];
 
+
+
 void *filosofo(void *arg) {
     int id = *(int *)arg;
     int bacchetta_sx = id ;
