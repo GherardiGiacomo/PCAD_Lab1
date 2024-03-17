@@ -25,7 +25,7 @@ unsigned int pthread_my_barrier_init(my_barrier *mb, unsigned int v){
     return 0;
 }
 
-
+ 
 unsigned int pthread_my_barrier_wait(my_barrier *mb){
      pthread_mutex_lock(&mb->lock);
     mb->val++;
