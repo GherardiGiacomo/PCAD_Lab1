@@ -6,19 +6,22 @@
 #define NUM_VOLTE 5
 
 pthread_mutex_t bacchette[NUM_FILOSOFI];
-int mangiato[NUM_FILOSOFI] = {0}; // Aggiungi un array di contatori
+int mangiato[NUM_FILOSOFI] = {0}; // Array di contatori
 
 void* filosofo(void* num) {
     int id = *(int*)num;
     for (int i = 0; i < NUM_VOLTE; i++) {
         printf("Filosofo %d: sta pensando\n", id);
+
         usleep(1000000); //faccio "pensare" il filosofo n per un po' di tempo
 
         pthread_mutex_lock(&bacchette[id]);
         pthread_mutex_lock(&bacchette[(id+1)%NUM_FILOSOFI]);
+
         printf("Filosofo %d: ha la sua bacchetta sinistra\n", id);
         printf("Filosofo %d: ha la sua bacchetta destra\n", id);
         printf("\nFilosofo %d: sta mangiando\n\n", id);
+        
         usleep(1000000); //faccio "mangiare" il filosofo n per un po' di tempo
 
         mangiato[id]++; // Incrementa il contatore
