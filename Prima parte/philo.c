@@ -1,56 +1,62 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
 
-pthread_mutex_t bacchette[5];
+#define NUMERO_FILOSOFI 5
+#define TOT_MANGIATO 5
 
+pthread_mutex_t bacchette[NUMERO_FILOSOFI];
+int mangiato[NUMERO_FILOSOFI] = {0}; // Array di contatori, serve per contare quante volte ha mangiato ogni filosofo
 
-
-void *filosofo(void *arg) {
-    int id = *(int *)arg;
-    int bacchetta_sx = id ;
-    int bacchetta_dx = (id + 1) % 10;
-    
-    for (int i = 0; i < 5; i++) {
+void* filosofo(void* n) {
+    int id = *(int*)n;
+    for (int i = 0; i < TOT_MANGIATO; i++) {
+        usleep((rand() % 3 + 1) * 1000000); //il filosofo pensa tra 1 e 3 secondi
         printf("Filosofo %d: sta pensando\n", id);
-        usleep(1000000); //faccio "pensare" il filosofo n per un po' di tempo
         
-        pthread_mutex_lock(&bacchette[bacchetta_sx]);
-        printf("Filosofo %d: ha preso la sua bacchetta di sinistra\n", id);
-        pthread_mutex_lock(&bacchette[bacchetta_dx]);
-        printf("Filosofo %d: ha preso la sua bacchetta di destra\n", id);
-        
-        printf("\n\n\nFilosofo %d: sta mangiando\n\n\n", id);
-        usleep(1000000); //faccio "mangiare" il filosofo n per un po' di tempo
-        
-        pthread_mutex_unlock(&bacchette[bacchetta_dx]);
-        printf("Filosofo %d: ha posato la sua bacchetta destra\n", id);
-        pthread_mutex_unlock(&bacchette[bacchetta_sx]);
-        printf("Filosofo %d: ha posato la sua bacchetta sinistra\n", id);
-    }
-            printf("Filosofo %d: ha rilasciato le sue due bacchette\n", id);
+        usleep((rand() % 3 + 1) * 1000000);
 
-return NULL;
+        pthread_mutex_lock(&bacchette[id]); //il filosofo prende la bacchetta sinistra
+        pthread_mutex_lock(&bacchette[(id+1)%NUMERO_FILOSOFI]); //il filosofo prende la bacchetta destra
+
+        printf("Filosofo %d: ha la sua bacchetta sinistra\n", id);
+        printf("Filosofo %d: ha la sua bacchetta destra\n", id);
+        printf("\nFilosofo %d: sta mangiando\n\n", id);
+        
+        usleep(1000000); //faccio "mangiare" il filosofo per 1 secondo
+
+        mangiato[id]++;
+        printf("\nFilosofo %d: ha mangiato %d volte\n\n", id, mangiato[id]); // Stampo il numero di volte che il filosofo ha mangiato
+        pthread_mutex_unlock(&bacchette[id]);
+        pthread_mutex_unlock(&bacchette[(id+1)%NUMERO_FILOSOFI]);
+        printf("Filosofo %d: ha rilasciato le sue due bacchette\n", id);
+    }
+    return NULL;
 }
 
-
 int main() {
-    pthread_t filosofi[5];
-    int id[5];
+    srand(time(NULL));
+    pthread_t filosofi[NUMERO_FILOSOFI];
+    int id[NUMERO_FILOSOFI];
 
-    for (int i=0; i<5;i++){ //creo i thread
+    for (int i = 0; i < NUMERO_FILOSOFI; i++) {
+        if(pthread_mutex_init(&bacchette[i], NULL) != 0) {
+            printf("Errore nell'inizializzazione del mutex\n");
+            exit(1);
+        }
         id[i] = i;
-        pthread_create(&filosofi[i],NULL,filosofo,&id[i]);
+        if( pthread_create(&filosofi[i], NULL, filosofo, &id[i]) != 0) {
+            printf("Errore nella creazione del thread\n");
+            exit(1);
+        }
     }
-
-    for (int i=0; i<5;i++){ //creo lock bacchette
-        pthread_join(filosofi[i],NULL);
+    for (int i = 0; i < NUMERO_FILOSOFI; i++) {
+        if(pthread_join(filosofi[i], NULL) != 0) {  //aspetta che il filosofo i-esimo abbia finito di mangiare
+            printf("Errore nell'attesa del thread\n");
+            exit(1);
+        }
     }
-
-    for (int i=0; i<10;i++){ //rilascio i lock
-        pthread_mutex_destroy(&bacchette[i]);
-    }
-
     return 0;
-    }
+}
