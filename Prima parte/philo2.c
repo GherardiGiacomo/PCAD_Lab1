@@ -7,6 +7,8 @@
 #define NUMERO_FILOSOFI 5
 #define TOT_MANGIATO 5
 
+//aggiungere spiegazione della regola del buttafuori per evitare il deadlock (se un filosofo non riesce a prendere la bacchetta destra, rilascia la sinistra)
+
 pthread_mutex_t bacchette[NUMERO_FILOSOFI];
 int mangiato[NUMERO_FILOSOFI] = {0}; // Array di contatori, serve per contare quante volte ha mangiato ogni filosofo
 
